@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
@@ -68,13 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-
                 //How do we load the animation resource files so we can use them in our Activity.
                 final Animation leftOutAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.left_out);
                 final Animation rightInAnim = AnimationUtils.loadAnimation(v.getContext(), R.anim.right_in);
 
                 //FlashcardQuestion.startAnimation(leftOutAnim);
-                questionTextView.startAnimation(leftOutAnim);
+                //questionTextView.startAnimation(leftOutAnim);
+                if(allFlashcards.size() == 0)
+                    return;
+
+                if(findViewById(R.id.flashcard_question).getVisibility()!= View.VISIBLE){
+                    findViewById(R.id.flashcard_answer).startAnimation(rightInAnim);
+                }else{
+                    findViewById(R.id.flashcard_question).startAnimation(rightInAnim);
+                }
 
                 leftOutAnim.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -86,8 +94,29 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     // this method is called when the animation is finished playing
-                    findViewById(R.id.flashcard_question).startAnimation(rightInAnim);
+                    currentCardDisplayedIndex++;
 
+                    if(findViewById(R.id.flashcard_question).getVisibility()!= View.VISIBLE){
+                        findViewById(R.id.flashcard_answer).startAnimation(rightInAnim);
+                    }else{
+                        findViewById(R.id.flashcard_question).startAnimation(rightInAnim);
+                    }
+
+                    if(currentCardDisplayedIndex >= allFlashcards.size()){
+                        Snackbar.make(findViewById(R.id.flashcard_question ),
+                                "The end, going back to the start",
+                                Snackbar.LENGTH_SHORT)
+                                .show();
+
+                        currentCardDisplayedIndex = 0;
+                    }
+                    allFlashcards = flashcardDatabase.getAllCards();
+                    Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
+
+                    ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getQuestion());
+                    ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getAnswer());
+
+                    Log.i(TAG,"Next Card\nAnswer:\t" + flashcard.getAnswer() + "\nQuestion:\t" + flashcard.getQuestion());
                 }
 
                 @Override
@@ -119,23 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(5000);
                 anim.start();
 
-                if(allFlashcards.size() == 0)
-                    return;
-                currentCardDisplayedIndex++;
 
-                if(currentCardDisplayedIndex >= allFlashcards.size()){
-                 Snackbar.make(findViewById(R.id.flashcard_question ),
-                        "The end, going back to the start",
-                        Snackbar.LENGTH_SHORT)
-                         .show();
-
-                    currentCardDisplayedIndex = 0;
-                }
-                allFlashcards = flashcardDatabase.getAllCards();
-                Flashcard flashcard = allFlashcards.get(currentCardDisplayedIndex);
-
-                ((TextView) findViewById(R.id.flashcard_question)).setText(flashcard.getQuestion());
-                ((TextView) findViewById(R.id.flashcard_answer)).setText(flashcard.getAnswer());
 
                 findViewById(R.id.flashcard_question).startAnimation(leftOutAnim);
                 findViewById(R.id.flashcard_answer).startAnimation(rightInAnim);
