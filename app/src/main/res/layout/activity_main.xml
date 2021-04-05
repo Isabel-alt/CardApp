@@ -29,7 +29,8 @@
         android:text="Barack Obama"
         android:textAlignment="center"
         android:textSize="40sp"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:background="@drawable/card_background"/>
 
     <ImageView
         android:id="@+id/my_icon"
