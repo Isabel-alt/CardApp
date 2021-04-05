@@ -384,6 +384,7 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.flashcard_question),
                     "Card Successfully Created",
                     Snackbar.LENGTH_SHORT).show();
+            currentCardDisplayedIndex++;
         }
     }
 
